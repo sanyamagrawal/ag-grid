@@ -9,7 +9,8 @@
     "ag-grid": "^6.0.1",
     "ag-grid-react": "^6.0.1",
     "react": "^15.3.2",
-    "react-dom": "^15.3.2"
+    "react-dom": "^15.3.2",
+    "recompose": "^0.20.2"
   },
   "scripts": {
     "start": "react-scripts start",

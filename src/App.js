@@ -87,16 +87,26 @@ class App extends Component {
     }
 
     onAlignClick(alignmentType) {
+      // const data = this.state.data.slice(0);
+      // data[currentSelectedRow][currentSelectedColumn].style.textAlign = typeMap[alignmentType];
+      // this.setState({
+      //   data: data
+      // });
+
       if (!currentSelectedColumn) {
         return;
       }
 
-      const data = this.state.data.slice(0);
+      const updatedNodes = [];
+      const gridAPI = this.refs.grid.api;
 
-      data[currentSelectedRow][currentSelectedColumn].style.textAlign = typeMap[alignmentType];
-      this.setState({
-        data: data
+      gridAPI.forEachNode( (node) => {
+        if (node.childIndex !== currentSelectedRow) return;
+        node.data[currentSelectedColumn].style.textAlign = typeMap[alignmentType];
+        updatedNodes.push(node);
       });
+
+      gridAPI.refreshCells(updatedNodes, [currentSelectedColumn]);
     }
 }
 
