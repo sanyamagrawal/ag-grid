@@ -1,13 +1,10 @@
 import React, {Component} from 'react';
 import { AgGridReact } from 'ag-grid-react';
 
+import 'ag-grid/dist/styles/ag-grid.css';
 import logo from './logo.svg';
 import './App.css';
-import 'ag-grid/dist/styles/ag-grid.css';
-import 'ag-grid/dist/styles/theme-blue.css';
-import CellRenderer from './Grid/CellRenderer';
-import CellEditor from './Grid/CellEditor';
-
+import Columns from './Grid/ColumnMixin';
 
 const typeMap = {
   1: 'left',
@@ -15,74 +12,32 @@ const typeMap = {
   3: 'right'
 };
 
-const alignMap = {};
-
-const cellStyle = (event) => {
-  let alignType;
-
-  const key = `${event.node.childIndex}_${event.column.colId}`;
-  const align = alignMap[key];
-
-  if (!align) {
-    return {};
-  }
-
-  alignType = typeMap[align];
-  return {
-    'text-align': alignType,
-    'textAlign': alignType
-  };
-};
-
-const snNoRenderer = (props) => {
-  return parseInt(props.rowIndex, 10) + 1;
-};
-
-const columnDefs = [{
-    headerName: 'S.No',
-    field: '',
-    width:70,
-    cellRenderer: snNoRenderer
-  }, {
-    headerName: "Drink Name",
-    field: "item",
-    editable: true,
-    cellStyle: cellStyle,
-    cellRendererFramework:CellRenderer,
-    cellEditorFramework: CellEditor
-  }, {
-    headerName: "Units Avaliable",
-    field: "unit",
-    editable: true,
-    cellStyle: cellStyle,
-    cellRendererFramework:CellRenderer,
-    cellEditorFramework: CellEditor
-  }, {
-    headerName: "Unit Amount",
-    field: "amount",
-    editable: true,
-    cellStyle: cellStyle,
-    cellRendererFramework:CellRenderer,
-    cellEditorFramework: CellEditor
-  }, {
-    headerName: "Unit Total",
-    field: "total",
-    editable: true,
-    cellStyle: cellStyle,
-    cellRendererFramework:CellRenderer,
-    cellEditorFramework: CellEditor
-  }];
-
 const createRowData = () => {
     var rows = [];
-    ['Ales', 'Larger', 'Cider', 'Wine', 'Spirits'].forEach((item) => {
-        rows.push({category: 'Alcoholic Drinks', item: item});
+    'qwertyuiopasdfghjklzxcvbnm'.split('').forEach((item) => {
+        rows.push({
+          item: {
+            value: item,
+            style: {}
+          }});
     });
 
     rows.forEach((row) => {
-        row.amount = Math.round(Math.random() * 1000);
-        row.unit = Math.round(Math.random() * 100);
-        row.total = row.amount*row.unit;
+
+        row.amount = {
+          value: Math.round(Math.random() * 1000),
+          style: {}
+        };
+
+        row.unit = {
+          value: Math.round(Math.random() * 100),
+          style: {}
+        };
+
+        row.total = {
+          value: row.amount.value*row.unit.value,
+          style: {}
+        };
     });
     return rows;
 };
@@ -90,19 +45,25 @@ const createRowData = () => {
 let currentSelectedRow;
 let currentSelectedColumn;
 
-const gridOptions = {
-    columnDefs: columnDefs,
-    rowData: createRowData(),
-    forPrint: true,
-    onCellClicked: (event) => {
-      currentSelectedRow = event.rowIndex;
-      currentSelectedColumn = event.colDef.field;
-    }
-};
-
-
 class App extends Component {
+    constructor(props) {
+      super(props);
+      this.state={
+        data: createRowData()
+      };
+    }
+
+    getGridOptions() {
+      return {
+          columnDefs: Columns,
+          rowData: this.state.data,
+          forPrint: true,
+          onCellClicked: this.onCellClicked
+      };
+    }
+
     render() {
+      debugger;
         return (
             <div className="App">
                 <div className="App-header">
@@ -111,21 +72,31 @@ class App extends Component {
                 </div>
 
                 <div className="card">
-                  <button data-type="1" onClick={this.onAlignClick.bind(this, 1)}>Left</button>
-                  <button data-type="2" onClick={this.onAlignClick.bind(this, 2)}>Center</button>
-                  <button data-type="3" onClick={this.onAlignClick.bind(this, 3)}>Right</button>
-                  <AgGridReact ref="grid" {...gridOptions} />
+                  <button onClick={this.onAlignClick.bind(this, 1)}>Left</button>
+                  <button onClick={this.onAlignClick.bind(this, 2)}>Center</button>
+                  <button onClick={this.onAlignClick.bind(this, 3)}>Right</button>
+                  <br />
+                  <AgGridReact ref="grid" {...this.getGridOptions()} />
                 </div>
             </div>
         );
     }
 
+    onCellClicked = (event) => {
+      currentSelectedRow = event.rowIndex;
+      currentSelectedColumn = event.colDef.field;
+    }
+
     onAlignClick(alignmentType) {
-      alignMap[`${currentSelectedRow}_${currentSelectedColumn}`] = alignmentType;
-      this.refs.grid.api.startEditingCell({
-          rowIndex: currentSelectedRow,
-          colKey: currentSelectedColumn,
-          type:1
+      if (!currentSelectedColumn) {
+        return;
+      }
+
+      const data = this.state.data.slice(0);
+
+      data[currentSelectedRow][currentSelectedColumn].style.textAlign = typeMap[alignmentType];
+      this.setState({
+        data: data
       });
     }
 }

@@ -1,31 +1,12 @@
+import CellRenderer from './CellRenderer';
 
-const typeMap = {
-  1: 'left',
-  2: 'center',
-  3: 'right'
-};
-
-const cellStyle = (event) => {
-  let alignType;
-
-  const key = `${event.node.childIndex}_${event.column.colId}`;
-  const align = alignMap[key];
-  if (!align) {
-    return {};
-  }
-
-  alignType = typeMap[align];
-  return {
-    'text-align': alignType,
-    'textAlign': alignType
-  };
-};
+const cellStyle = event => event.value.style;
 
 const snNoRenderer = (props) => {
   return parseInt(props.rowIndex, 10) + 1;
 };
 
-const columnDefs = [{
+const Columns = [{
     headerName: 'S.No',
     field: '',
     width:70,
@@ -35,29 +16,25 @@ const columnDefs = [{
     field: "item",
     editable: true,
     cellStyle: cellStyle,
-    cellRendererFramework:CellRenderer,
-    cellEditorFramework: CellEditor
+    cellRendererFramework: CellRenderer
   }, {
     headerName: "Units Avaliable",
     field: "unit",
     editable: true,
     cellStyle: cellStyle,
-    cellRendererFramework:CellRenderer,
-    cellEditorFramework: CellEditor
-  }, ,{
+    cellRendererFramework: CellRenderer
+  }, {
     headerName: "Unit Amount",
     field: "amount",
     editable: true,
     cellStyle: cellStyle,
-    cellRendererFramework:CellRenderer,
-    cellEditorFramework: CellEditor
+    cellRendererFramework: CellRenderer
   }, {
     headerName: "Unit Total",
     field: "total",
     editable: true,
     cellStyle: cellStyle,
-    cellRendererFramework:CellRenderer,
-    cellEditorFramework: CellEditor
+    cellRendererFramework: CellRenderer
   }];
 
-export default columnDefs;
+  export default Columns;
